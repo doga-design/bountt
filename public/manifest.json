@@ -1,0 +1,15 @@
+{
+  "name": "Bountt",
+  "short_name": "Bountt",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#003C69",
+  "background_color": "#EBEBEB",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
