@@ -149,7 +149,6 @@ interface IconConfig {
 const ICONS: IconConfig[] = [
   { Icon: Icon01, anim: "auth-float-1", className: "left-[40%] bottom-[20%] w-[66px]", opacity: 1 },
   { Icon: Icon03, anim: "auth-float-2", className: "left-[28%] bottom-[10%] w-[46px]", opacity: .7 },
-  { Icon: Icon05, anim: "auth-float-3", className: "left-[30%] bottom-[40%] w-[66px] -translate-x-1/2", opacity: 1 },
   { Icon: Icon10, anim: "auth-float-4", className: "right-[20%] bottom-[30%] w-[66px]", opacity: 1 },
   { Icon: Icon02, anim: "auth-float-5", className: "right-[30%] bottom-[3%] w-[66px]", opacity: .6 },
 ];
