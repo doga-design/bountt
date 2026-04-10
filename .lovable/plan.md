@@ -1,7 +1,7 @@
-
-Critical confetti audit completed across every requested file.
+Critical confetti audit completed across every requested file..
 
 What I confirmed
+
 - `package.json:48` has `"canvas-confetti": "^1.9.4"`.
 - The package is installed: `node_modules/canvas-confetti/` exists.
 - This version does not ship `dist/confetti.browser.min.js`; that is not the blocker. It ships `dist/confetti.browser.js` and exports `dist/confetti.module.mjs`, so the import is valid.
@@ -13,6 +13,7 @@ What I confirmed
 - `canvas-confetti`’s default export prefers a blob worker (`new Worker(URL.createObjectURL(new Blob(...)))`). Under the current CSP, that worker path is not explicitly allowed, so behavior is browser-dependent and can fail/fallback silently.
 
 Exact code-path findings
+
 - `Dashboard.tsx` only has settlement refs:
   - `pendingSettlementRef`
   - `hasFirstSettleFiredRef`
@@ -46,6 +47,7 @@ Exact code-path findings
 - It does not have a `hasAddedFirstMemberRef`, so there is no first-only guard or logging.
 
 True root causes
+
 1. The rendering layer has never been explicitly proven. There is no smoke test, and the current CSP does not explicitly allow the blob-worker path `canvas-confetti` tries to use.
 2. The first-expense architecture is broken/inconsistent:
    - `Dashboard` no longer owns first-expense close-trigger firing
@@ -56,7 +58,9 @@ True root causes
 5. Important nuance: using `expenses.length === 0` inside `handleSave` is not the best trigger. `AppContext.tsx` realtime can update `expenses` during the save flow. The existing `wasFirstExpenseRef.current` snapshot taken when the drawer opens is the safer source of truth. I would still log `expenses.length`, but I would not use it as the actual gate.
 
 One-pass implementation plan
+
 1. Prove rendering first
+
 - In `src/lib/confetti-utils.ts`, add:
   - `testConfetti()`
   - all requested `console.log` lines
@@ -66,6 +70,7 @@ One-pass implementation plan
 - After visual confirmation, remove the temporary mount test but keep `testConfetti()` exported.
 
 2. Restore a deterministic first-expense flow
+
 - In `Dashboard.tsx`:
   - import `fireFirstCost`
   - restore `pendingFirstCostRef` and `hasFirstCostFiredRef`
@@ -83,6 +88,7 @@ One-pass implementation plan
   - if `pendingFirstCostRef.current && !hasFirstCostFiredRef.current`, clear/set refs and fire `fireFirstCost()` inside double `requestAnimationFrame`
 
 3. Harden first-member onboarding trigger
+
 - In `EmptyState.tsx`, add `hasAddedFirstMemberRef`
 - After the first successful member add:
   - log `[confetti] calling fireMemberAdded`
@@ -90,6 +96,7 @@ One-pass implementation plan
 - Keep the same guard/log pattern in `ExpenseScreen`’s nested `AddMemberSheet`
 
 4. Instrument and harden settlement flow
+
 - In `Dashboard.tsx`, keep settlement refs but add logs:
   - when `onSettlementComplete` is received
   - when `pendingSettlementRef` is set
@@ -100,6 +107,7 @@ One-pass implementation plan
   - keep the existing auto-close pattern, because that part is already correct
 
 5. Leave the diagnostic trail in the code
+
 - First expense:
   - `[confetti] expenses.length at save time: ...`
   - `[confetti] wasFirstExpenseRef: ...`
@@ -122,6 +130,7 @@ One-pass implementation plan
   - `[confetti] testConfetti called`
 
 Files to change
+
 - `src/lib/confetti-utils.ts`
 - `src/pages/Dashboard.tsx`
 - `src/components/expense/ExpenseScreen.tsx`
@@ -130,6 +139,7 @@ Files to change
 - `index.html`
 
 Expected result after this pass
+
 - Rendering is verified first, not assumed.
 - First member fires from the real onboarding success path.
 - First expense is detected reliably from the drawer-open snapshot, but visually fired after the drawer closes.
