@@ -20,5 +20,5 @@ Other scripts:
 - `npm run build` — production build
 - `npm run preview` — preview the production build
 - `npm test` — run Vitest once  
-  another test
+  keep running tests
 -
