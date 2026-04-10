@@ -1,5 +1,7 @@
 Critical confetti audit completed across every requested file..
 
+testing
+
 What I confirmed
 
 - `package.json:48` has `"canvas-confetti": "^1.9.4"`.
